@@ -1,773 +1,235 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🎣 Pesca con Manuel</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#f0c040;--blue:#1a3a5c;--green:#2d9e4f}
-body{font-family:'Nunito',sans-serif;background:#0d2847;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden}
-#app{position:relative;width:min(430px,100vw);height:min(900px,100vh);overflow:hidden}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
-.screen.active{transform:translateX(0)}
-.screen.exit-left{transform:translateX(-100%)}
-
-/* MENU */
-#screen-menu{background:linear-gradient(180deg,#0a1628 0%,#0d2847 15%,#1a5276 35%,#1e88b8 55%,#48b8d0 70%,#90d8b8 90%,#c8eca0 100%)}
-.stars-wrap{position:absolute;top:0;left:0;width:100%;height:45%;pointer-events:none}
-.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite}
-@keyframes twinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
-.menu-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:24px;gap:22px}
-.menu-emoji{font-size:68px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.menu-title{font-size:40px;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5),0 0 20px rgba(100,200,255,.5);text-align:center}
-.menu-sub{font-size:16px;color:rgba(255,255,255,.8);font-weight:700;text-align:center}
-.menu-card{background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:16px 24px;text-align:center;max-width:300px}
-.menu-card p:first-child{font-size:12px;color:rgba(255,255,255,.7);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.menu-card p:last-child{font-size:18px;color:#fff;font-weight:800}
-
-/* BUTTONS */
-.btn-primary{background:linear-gradient(135deg,#f0c040,#e8901a);border:none;border-radius:50px;padding:16px 44px;font-size:20px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 4px 20px rgba(240,160,30,.5);transition:all .2s;font-family:'Nunito',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.3)}
-.btn-primary:active{transform:scale(.96)}
-.btn-secondary{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50px;padding:12px 30px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif}
-.btn-secondary:active{background:rgba(255,255,255,.35)}
-
-/* LOCATION SCREEN */
-#screen-location{background:linear-gradient(180deg,#0d2847 0%,#1a5276 100%)}
-.screen-header{width:100%;padding:20px 20px 12px;display:flex;align-items:center;gap:12px}
-.back-btn{background:rgba(255,255,255,.2);border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;color:#fff;flex-shrink:0;font-family:'Nunito',sans-serif}
-.screen-header h2{color:#fff;font-size:19px;font-weight:800}
-.location-list{width:100%;padding:0 16px 20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1}
-.loc-card{border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(0,0,0,.35)}
-.loc-card:active{transform:scale(1.02)}
-.loc-scene{height:145px;position:relative;display:block;width:100%}
-.loc-info{background:#fff;padding:14px 18px}
-.loc-info h3{font-size:18px;font-weight:800;color:#1a3a5c}
-.loc-info p{font-size:13px;color:#777;margin-top:2px;font-weight:600}
-.fish-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.ftag{background:#e8f4fd;border:1px solid #b8d8f0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#1a5276}
-
-/* FISHING SCREEN */
-#screen-fishing{background:#1a5276;flex-direction:column}
-#fishing-canvas{display:block;width:100%}
-.fishing-nav{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
-.loc-badge{background:rgba(0,0,0,.5);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700}
-.score-badge{background:rgba(0,0,0,.5);color:var(--gold);border-radius:20px;padding:6px 14px;font-size:14px;font-weight:800}
-.fishing-ui{position:absolute;bottom:0;left:0;right:0;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:10}
-#fish-status{font-size:15px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);text-align:center;min-height:22px}
-.power-wrap{width:220px;background:rgba(0,0,0,.4);border-radius:20px;height:18px;overflow:hidden;display:none}
-.power-fill{height:100%;border-radius:20px;width:0%;background:#4caf50}
-.cast-btn{background:linear-gradient(135deg,#2d9e4f,#1a7a38);border:none;border-radius:50%;width:82px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(30,150,70,.5);font-family:'Nunito',sans-serif;color:#fff;font-weight:800;font-size:12px;line-height:1.2;transition:transform .15s}
-.cast-btn:active{transform:scale(.93)}
-.cast-icon{font-size:28px;line-height:1}
-.bite-ind{position:absolute;top:28%;left:50%;transform:translateX(-50%) translateY(-50%);background:rgba(220,30,30,.92);color:#fff;font-size:20px;font-weight:900;border-radius:16px;padding:12px 26px;display:none;animation:pbite .3s ease-in-out infinite alternate;box-shadow:0 4px 20px rgba(255,50,50,.6);text-align:center;cursor:pointer;z-index:20}
-@keyframes pbite{from{transform:translateX(-50%) translateY(-50%) scale(1)}to{transform:translateX(-50%) translateY(-50%) scale(1.08)}}
-.reel-zone{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,20,.65);z-index:15}
-.reel-zone.on{display:flex}
-.reel-title{color:#fff;font-size:22px;font-weight:800;text-align:center}
-.reel-bar-wrap{width:280px;height:24px;background:rgba(255,255,255,.2);border-radius:20px;overflow:hidden;border:2px solid rgba(255,255,255,.4)}
-.reel-bar-fill{height:100%;background:linear-gradient(90deg,#43a047,#7cb342,#fdd835,#f4511e);border-radius:20px;width:0%;transition:width .08s}
-.reel-btn{background:linear-gradient(135deg,#e53935,#c62828);border:none;border-radius:50px;padding:14px 36px;color:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(229,57,53,.5);font-family:'Nunito',sans-serif;transition:transform .1s}
-.reel-btn:active{transform:scale(.94)}
-
-/* CATCH SCREEN */
-#screen-catch{background:linear-gradient(180deg,#0d2847 0%,#1a5276 100%)}
-.catch-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:24px;gap:18px;width:100%}
-.catch-title{font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 2px 8px rgba(240,192,64,.4);text-align:center}
-.catch-card{background:#fff;border-radius:24px;padding:24px;width:100%;max-width:350px;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center}
-.catch-fish-name{font-size:26px;font-weight:900;color:#1a3a5c;margin-top:8px}
-.catch-fish-sci{font-size:13px;color:#999;font-style:italic;margin-top:2px}
-.catch-fish-desc{font-size:14px;color:#555;margin-top:10px;line-height:1.55;font-weight:600}
-.catch-stats{display:flex;justify-content:center;gap:20px;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
-.cstat-v{font-size:22px;font-weight:900;color:#1a5276}
-.cstat-l{font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase}
-.rbadge{display:inline-block;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-top:8px}
-.r-common{background:#e8f5e9;color:#2e7d32}
-.r-uncommon{background:#e3f2fd;color:#1565c0}
-.r-rare{background:#fce4ec;color:#c62828}
-.new-badge{background:linear-gradient(135deg,#f0c040,#e8901a);color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800;vertical-align:middle}
-.escape-emoji{font-size:64px}
-.escape-title{font-size:24px;font-weight:900;color:#e53935;margin-top:10px}
-.escape-text{font-size:14px;color:#666;margin-top:8px;font-weight:600}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-
-/* COLLECTION SCREEN */
-#screen-collection{background:linear-gradient(180deg,#0d2847 0%,#1a3a5c 100%)}
-.col-stats{width:100%;padding:0 16px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.scard{background:rgba(255,255,255,.1);border-radius:14px;padding:12px;text-align:center}
-.scard-v{font-size:22px;font-weight:900;color:var(--gold)}
-.scard-l{font-size:10px;color:rgba(255,255,255,.7);font-weight:700;text-transform:uppercase}
-.col-grid{width:100%;padding:0 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;overflow-y:auto;flex:1;padding-bottom:20px}
-.col-item{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.2)}
-.col-item.locked{background:rgba(255,255,255,.08);border:2px dashed rgba(255,255,255,.2)}
-.col-img{background:#f0f8ff;display:flex;align-items:center;justify-content:center;height:88px}
-.col-item.locked .col-img{background:rgba(0,0,0,.15)}
-.col-info{padding:10px 12px}
-.col-name{font-size:13px;font-weight:800;color:#1a3a5c}
-.col-item.locked .col-name{color:rgba(255,255,255,.35)}
-.col-detail{font-size:11px;color:#999;font-weight:600;margin-top:2px}
-.col-item.locked .col-detail{color:rgba(255,255,255,.2)}
-.col-caught{font-size:10px;color:#43a047;font-weight:800;margin-top:4px}
-@keyframes slide-up{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
-.su{animation:slide-up .4s ease-out}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a1628">
+  <title>La Portiña · Pesca en Talavera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
-<div id="app">
 
-<!-- MENU -->
-<div id="screen-menu" class="screen active">
-  <div class="stars-wrap" id="stars"></div>
-  <div class="menu-content">
-    <div style="text-align:center">
-      <div class="menu-emoji">🎣</div>
-      <div class="menu-title">¡A Pescar!</div>
-      <div class="menu-sub">El juego de pesca de Manuel</div>
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen active">
+    <canvas id="loading-canvas"></canvas>
+    <div class="loading-content">
+      <div class="loading-emblem">🎣</div>
+      <h1 class="loading-title">LA PORTIÑA</h1>
+      <p class="loading-sub">Pantano · Talavera de la Reina</p>
+      <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+      <p class="loading-msg" id="loading-msg">Preparando el pantano…</p>
     </div>
-    <div class="menu-card">
-      <p>Con todo el cariño para</p>
-      <p>🎂 Manuel, en tu cumpleaños 🎂</p>
-    </div>
-    <button class="btn-primary" onclick="goTo('location')">🎣 ¡Empezar!</button>
-    <button class="btn-secondary" onclick="goTo('collection')">📖 Mi Colección</button>
   </div>
-</div>
 
-<!-- LOCATION -->
-<div id="screen-location" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="goTo('menu')">←</button>
-    <h2>Elige tu lugar de pesca</h2>
+  <!-- MENÚ -->
+  <div id="screen-menu" class="screen">
+    <canvas id="menu-canvas"></canvas>
+    <div class="menu-overlay">
+      <div class="menu-header">
+        <span class="menu-emblem">🎣</span>
+        <div>
+          <h1 class="menu-title">LA PORTIÑA</h1>
+          <p class="menu-subtitle">Pantano · Talavera de la Reina</p>
+        </div>
+      </div>
+      <div class="menu-btns">
+        <button class="btn btn-primary btn-xl" id="btn-play"><span>🎣</span>IR A PESCAR</button>
+        <button class="btn btn-ghost btn-xl" id="btn-collection"><span>📖</span>MI COLECCIÓN</button>
+        <button class="btn btn-ghost btn-xl" id="btn-stats"><span>📊</span>ESTADÍSTICAS</button>
+      </div>
+      <div class="menu-footer">
+        <span class="env-pill" id="menu-weather-pill">☀️ Soleado</span>
+        <span class="env-pill" id="menu-time-pill">🌅 Mañana</span>
+      </div>
+    </div>
   </div>
-  <div class="location-list">
-    <div class="loc-card" onclick="selectLocation('portinas')">
-      <canvas class="loc-scene" id="sc-portinas" height="145"></canvas>
-      <div class="loc-info">
-        <h3>🌊 Las Portiñas</h3>
-        <p>Costa · Aguas del mar</p>
-        <div class="fish-tags">
-          <span class="ftag">Lubina</span><span class="ftag">Dorada</span><span class="ftag">Sargo</span><span class="ftag">+2</span>
+
+  <!-- PREPARAR EQUIPO -->
+  <div id="screen-setup" class="screen">
+    <div class="setup-header">
+      <button class="btn-back" id="btn-setup-back">←</button>
+      <h2>Preparar Equipo</h2>
+    </div>
+    <div class="setup-scroll">
+      <section class="setup-section">
+        <h3 class="section-title">⏰ Hora del día</h3>
+        <div class="chip-row" id="time-selector"></div>
+      </section>
+      <section class="setup-section">
+        <h3 class="section-title">🌤️ Tiempo</h3>
+        <div class="chip-row" id="weather-selector"></div>
+      </section>
+      <section class="setup-section">
+        <h3 class="section-title">🎣 Técnica</h3>
+        <div class="chip-row" id="technique-selector"></div>
+      </section>
+      <section class="setup-section">
+        <h3 class="section-title">🪱 Cebo</h3>
+        <div class="bait-grid" id="bait-grid"></div>
+      </section>
+      <div class="fish-hints-box" id="fish-hints">
+        <p class="hints-label">🐟 Probable con esta configuración:</p>
+        <div class="hints-list" id="hints-list"></div>
+      </div>
+    </div>
+    <div class="setup-footer">
+      <button class="btn btn-primary btn-xl" id="btn-start-fishing">🎣 ¡A PESCAR!</button>
+    </div>
+  </div>
+
+  <!-- JUEGO -->
+  <div id="screen-game" class="screen">
+    <canvas id="game-canvas"></canvas>
+    <div class="hud-top">
+      <div class="hud-pill"><span id="hud-time-icon">☀️</span><span id="hud-time-text">Mañana</span></div>
+      <div class="hud-pill hud-score"><span>🐟</span><span id="hud-catch-count">0</span></div>
+      <div class="hud-pill"><span id="hud-weather-icon">☀️</span></div>
+    </div>
+    <div class="hud-status"><p id="status-text">Prepara el lanzamiento…</p></div>
+    <div class="bite-alert" id="bite-alert">
+      <div class="bite-inner">
+        <span class="bite-fish">🐟</span>
+        <span class="bite-word">¡MUERDE!</span>
+        <span class="bite-tap">¡TAP!</span>
+      </div>
+    </div>
+    <div class="cast-overlay" id="cast-overlay">
+      <span class="cast-label">POTENCIA</span>
+      <div class="power-track"><div class="power-fill" id="power-fill"></div><div class="power-sweet"></div></div>
+      <span class="power-pct" id="power-pct">0%</span>
+    </div>
+    <div class="reel-overlay" id="reel-overlay">
+      <div class="reel-fish-row">
+        <span class="reel-name" id="reel-name">Carpa</span>
+        <span class="reel-weight" id="reel-weight">~4 kg</span>
+      </div>
+      <div class="reel-track">
+        <div class="reel-fill" id="reel-fill"></div>
+        <div class="reel-resist-bar" id="reel-resist"></div>
+      </div>
+      <div class="reel-tension-row">
+        <span>Tensión</span>
+        <div class="tension-track"><div class="tension-fill" id="tension-fill"></div></div>
+      </div>
+      <p class="reel-tip" id="reel-tip">¡TAP RÁPIDO para carretar!</p>
+    </div>
+    <div class="game-controls">
+      <button class="ctrl-btn" id="btn-ingame-menu">☰</button>
+      <button class="cast-btn" id="btn-cast">
+        <span class="cast-btn-icon" id="cast-btn-icon">🎣</span>
+        <span class="cast-btn-label" id="cast-btn-label">LANZAR</span>
+      </button>
+      <button class="ctrl-btn" id="btn-change-bait">🪱</button>
+    </div>
+  </div>
+
+  <!-- CAPTURA -->
+  <div id="screen-catch" class="screen">
+    <div class="catch-wrap">
+      <div class="catch-badge-row">
+        <span class="catch-badge-pill" id="catch-badge">¡CAPTURA!</span>
+        <span class="new-species-pill" id="new-species-badge" style="display:none">¡ESPECIE NUEVA!</span>
+      </div>
+      <canvas id="catch-canvas" width="340" height="210"></canvas>
+      <div class="catch-card">
+        <div class="catch-name-row">
+          <h2 class="catch-name" id="catch-name">Carpa Común</h2>
+          <span class="rarity-tag" id="catch-rarity">Común</span>
+        </div>
+        <p class="catch-scientific" id="catch-scientific">Cyprinus carpio</p>
+        <div class="catch-stats-grid">
+          <div class="cstat-cell"><span class="cstat-lbl">Peso</span><span class="cstat-val" id="catch-weight">3.2 kg</span></div>
+          <div class="cstat-cell"><span class="cstat-lbl">Récord</span><span class="cstat-val" id="catch-record">— kg</span></div>
+          <div class="cstat-cell"><span class="cstat-lbl">Capturas</span><span class="cstat-val" id="catch-count-val">1</span></div>
+          <div class="cstat-cell"><span class="cstat-lbl">Puntos</span><span class="cstat-val gold" id="catch-points">+50</span></div>
+        </div>
+        <p class="catch-desc" id="catch-desc">Descripción.</p>
+      </div>
+      <div class="catch-actions">
+        <button class="btn btn-primary" id="btn-keep-fishing">🎣 Seguir Pescando</button>
+        <button class="btn btn-ghost" id="btn-to-collection">📖 Ver Colección</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCAPÓ -->
+  <div id="screen-escape" class="screen">
+    <div class="escape-wrap">
+      <div class="escape-anim">💨</div>
+      <h2 class="escape-title">¡SE ESCAPÓ!</h2>
+      <p class="escape-msg" id="escape-msg">El sedal se cortó en el último momento…</p>
+      <div class="escape-hint">Era un <strong id="escape-fish-name">pez misterioso</strong></div>
+      <button class="btn btn-primary btn-xl" id="btn-escape-retry">🎣 Seguir Pescando</button>
+    </div>
+  </div>
+
+  <!-- COLECCIÓN -->
+  <div id="screen-collection" class="screen">
+    <div class="collection-header">
+      <button class="btn-back" id="btn-coll-back">←</button>
+      <h2>Mi Colección</h2>
+      <div class="coll-prog-wrap">
+        <span id="coll-count">0/11</span>
+        <div class="prog-mini"><div class="prog-mini-fill" id="coll-prog-fill"></div></div>
+      </div>
+    </div>
+    <div class="coll-summary">
+      <div class="summary-cell"><span class="sum-val" id="sum-catches">0</span><span class="sum-lbl">Capturas</span></div>
+      <div class="summary-cell"><span class="sum-val" id="sum-weight">0 kg</span><span class="sum-lbl">Peso total</span></div>
+      <div class="summary-cell"><span class="sum-val gold" id="sum-points">0</span><span class="sum-lbl">Puntos</span></div>
+    </div>
+    <div class="fish-grid" id="fish-grid"></div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-header">
+      <button class="btn-back" id="btn-stats-back">←</button>
+      <h2>Estadísticas</h2>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+  </div>
+
+  <!-- MODAL DETALLE PEZ -->
+  <div id="modal-fish" class="modal hidden">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close">✕</button>
+      <canvas id="modal-canvas" width="340" height="210"></canvas>
+      <div class="modal-info">
+        <div class="modal-name-row">
+          <h3 id="modal-name">Nombre</h3>
+          <span class="rarity-tag" id="modal-rarity">Común</span>
+        </div>
+        <p class="modal-scientific" id="modal-scientific">Nombre científico</p>
+        <p class="modal-desc" id="modal-desc">Descripción</p>
+        <div class="modal-stats-grid">
+          <div><span>Peso</span><strong id="modal-weight-range">—</strong></div>
+          <div><span>Récord</span><strong id="modal-best">— kg</strong></div>
+          <div><span>Capturas</span><strong id="modal-total">0</strong></div>
+          <div><span>Cebo</span><strong id="modal-bait">—</strong></div>
+          <div><span>Mejor hora</span><strong id="modal-time">—</strong></div>
+          <div><span>Puntos</span><strong id="modal-pts">—</strong></div>
         </div>
       </div>
     </div>
-    <div class="loc-card" onclick="selectLocation('rosarito')">
-      <canvas class="loc-scene" id="sc-rosarito" height="145"></canvas>
-      <div class="loc-info">
-        <h3>🏞️ El Rosarito</h3>
-        <p>Embalse · Aguas dulces</p>
-        <div class="fish-tags">
-          <span class="ftag">Carpa</span><span class="ftag">Black Bass</span><span class="ftag">Lucio</span><span class="ftag">+2</span>
-        </div>
-      </div>
-    </div>
-    <div class="loc-card" onclick="selectLocation('cijara')">
-      <canvas class="loc-scene" id="sc-cijara" height="145"></canvas>
-      <div class="loc-info">
-        <h3>🌄 El Cijara</h3>
-        <p>Embalse de Extremadura · Aguas dulces</p>
-        <div class="fish-tags">
-          <span class="ftag">Carpa</span><span class="ftag">Barbo</span><span class="ftag">Boga</span><span class="ftag">+2</span>
-        </div>
-      </div>
+  </div>
+
+  <!-- MODAL CAMBIO CEBO -->
+  <div id="modal-bait" class="modal hidden">
+    <div class="modal-backdrop" id="modal-bait-backdrop"></div>
+    <div class="modal-box modal-box-sm">
+      <button class="modal-close" id="modal-bait-close">✕</button>
+      <h3 class="modal-title">Cambiar Cebo</h3>
+      <div class="bait-grid modal-bait-grid" id="modal-bait-grid"></div>
     </div>
   </div>
-</div>
 
-<!-- FISHING -->
-<div id="screen-fishing" class="screen">
-  <div class="fishing-nav">
-    <button class="back-btn" onclick="stopFishing()">←</button>
-    <div class="loc-badge" id="loc-name">📍 Las Portiñas</div>
-    <div class="score-badge" id="score-badge">🐟 0</div>
-  </div>
-  <canvas id="fishing-canvas"></canvas>
-  <div class="bite-ind" id="bite-ind" onclick="onBite()">¡MUERDE! 🐟<br><span style="font-size:13px">¡CLICA YA!</span></div>
-  <div class="reel-zone" id="reel-zone">
-    <div class="reel-title">¡Coba! ¡Dale al carrete!</div>
-    <div class="reel-bar-wrap"><div class="reel-bar-fill" id="reel-bar"></div></div>
-    <button class="reel-btn" id="reel-btn">🌀 ¡COBRAR!</button>
-  </div>
-  <div class="fishing-ui">
-    <div id="fish-status">Mantén pulsado para lanzar</div>
-    <div class="power-wrap" id="power-wrap"><div class="power-fill" id="power-fill"></div></div>
-    <button class="cast-btn" id="cast-btn">
-      <span class="cast-icon">🎣</span><span>LANZAR</span>
-    </button>
-  </div>
-</div>
-
-<!-- CATCH -->
-<div id="screen-catch" class="screen">
-  <div class="catch-wrap" id="catch-wrap"></div>
-</div>
-
-<!-- COLLECTION -->
-<div id="screen-collection" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="goTo('menu')">←</button>
-    <h2 style="color:#fff">📖 Mi Colección</h2>
-  </div>
-  <div class="col-stats">
-    <div class="scard"><div class="scard-v" id="st-sp">0</div><div class="scard-l">Especies</div></div>
-    <div class="scard"><div class="scard-v" id="st-tot">0</div><div class="scard-l">Capturas</div></div>
-    <div class="scard"><div class="scard-v" id="st-kg">0kg</div><div class="scard-l">Peso total</div></div>
-  </div>
-  <div class="col-grid" id="col-grid"></div>
-</div>
-
-</div><!-- #app -->
-
-<script>
-// ── FISH DATA ─────────────────────────────────────────────────────────────────
-const FISH = {
-  lubina:   { name:'Lubina',     sci:'Dicentrarchus labrax',      desc:'El rey de la costa. Luchador nato que dará una batalla épica.', rarity:'uncommon', minW:.5,  maxW:5.0,  c1:'#7a9bb5',c2:'#4a6e8a',cf:'#5a8099',pts:50,  shape:'sea',   locs:['portinas'] },
-  dorada:   { name:'Dorada',    sci:'Sparus aurata',             desc:'Reconocible por la mancha dorada entre los ojos. Muy apreciada.', rarity:'common',   minW:.3,  maxW:3.0,  c1:'#d4c070',c2:'#a89040',cf:'#c0a050',pts:30,  shape:'round', locs:['portinas'] },
-  sargo:    { name:'Sargo',     sci:'Diplodus sargus',           desc:'Plateado con rayas oscuras. Se acerca mucho a la orilla.', rarity:'common',   minW:.2,  maxW:1.5,  c1:'#c0c8d0',c2:'#8090a0',cf:'#a0b0c0',pts:25,  shape:'round', locs:['portinas'] },
-  mujol:    { name:'Mújol',     sci:'Mugil cephalus',            desc:'Rápido y escurridizo. Salta fuera del agua para escapar.', rarity:'common',   minW:.3,  maxW:2.0,  c1:'#708090',c2:'#4a5a6a',cf:'#607080',pts:20,  shape:'slim',  locs:['portinas'] },
-  salmonete:{ name:'Salmonete', sci:'Mullus surmuletus',         desc:'De color rojizo brillante. Sus barbillas detectan la comida.', rarity:'uncommon', minW:.1,  maxW:.8,   c1:'#e07060',c2:'#b04030',cf:'#c05040',pts:40,  shape:'round', locs:['portinas'] },
-  carpa:    { name:'Carpa',     sci:'Cyprinus carpio',           desc:'La reina de los embalses. Puede superar los 20 kg.', rarity:'common',   minW:1.0, maxW:15.0, c1:'#c8a87a',c2:'#9a7850',cf:'#b09060',pts:30,  shape:'big',   locs:['rosarito','cijara'] },
-  blackbass:{ name:'Black Bass',sci:'Micropterus salmoides',     desc:'Depredador agresivo. La estrella de la pesca deportiva.', rarity:'uncommon', minW:.5,  maxW:4.0,  c1:'#5a7048',c2:'#3a5030',cf:'#4a6038',pts:60,  shape:'bass',  locs:['rosarito','cijara'] },
-  tenca:    { name:'Tenca',     sci:'Tinca tinca',               desc:'Verde oliva oscuro. Vive en aguas tranquilas con vegetación.', rarity:'common',   minW:.3,  maxW:2.5,  c1:'#5a7840',c2:'#384e28',cf:'#4a6832',pts:25,  shape:'round', locs:['rosarito'] },
-  lucio:    { name:'Lucio',     sci:'Esox lucius',               desc:'¡El depredador temido! Dientes afilados y velocidad explosiva.', rarity:'rare',     minW:1.0, maxW:10.0, c1:'#607850',c2:'#404e30',cf:'#506040',pts:80,  shape:'pike',  locs:['rosarito','cijara'] },
-  barbo:    { name:'Barbo',     sci:'Barbus barbus',             desc:'Pez autóctono ibérico. Sus barbillas rastrean el fondo.', rarity:'common',   minW:.2,  maxW:3.0,  c1:'#a08060',c2:'#706040',cf:'#907050',pts:30,  shape:'slim',  locs:['cijara'] },
-  boga:     { name:'Boga',      sci:'Chondrostoma polylepis',    desc:'Plateada y abundante. Viaja en grandes bancos por el embalse.', rarity:'common',   minW:.1,  maxW:.8,   c1:'#c0c8d8',c2:'#9098a8',cf:'#a8b0c0',pts:15,  shape:'slim',  locs:['cijara'] }
-};
-
-const LOCS = {
-  portinas: { name:'Las Portiñas', emoji:'🌊', fish:['lubina','dorada','sargo','mujol','salmonete'], w:[2,3,3,4,2], sky:['#0a1a4a','#1a4a8a','#2a7ab8','#60a8d8','#90c8e8'], water:['#1a6898','#2888b8','#38a8d0'] },
-  rosarito: { name:'El Rosarito',  emoji:'🏞️', fish:['carpa','blackbass','tenca','lucio','barbo'],   w:[4,2,3,1,2], sky:['#1a2a1a','#2a4a2a','#3a6a3a','#60a060','#80c080'], water:['#1a5060','#207080','#2a9090'] },
-  cijara:   { name:'El Cijara',    emoji:'🌄', fish:['carpa','blackbass','lucio','barbo','boga'],    w:[4,2,1,3,4], sky:['#2a1a0a','#4a3020','#7a5030','#b07040','#d09060'], water:['#1a4868','#207888','#2a98a8'] }
-};
-
-// ── COLLECTION ────────────────────────────────────────────────────────────────
-let col = JSON.parse(localStorage.getItem('manu_pesca2') || '{}');
-function saveCol(){ localStorage.setItem('manu_pesca2', JSON.stringify(col)); }
-function addCatch(id, w){
-  if(!col[id]) col[id]={count:0,best:0,total:0};
-  col[id].count++; col[id].total+=w;
-  if(w>col[id].best) col[id].best=w;
-  saveCol();
-}
-
-// ── NAV ───────────────────────────────────────────────────────────────────────
-let curScreen='menu', curLoc=null, sessionCatches=0;
-function goTo(s){
-  const c=document.getElementById('screen-'+curScreen);
-  const n=document.getElementById('screen-'+s);
-  c.classList.remove('active'); c.classList.add('exit-left');
-  setTimeout(()=>c.classList.remove('exit-left'),360);
-  n.classList.add('active');
-  curScreen=s;
-  if(s==='collection') renderCollection();
-  if(s==='menu') sessionCatches=0;
-}
-
-// ── LOCATION SCENE DRAWING ────────────────────────────────────────────────────
-function drawScene(id, type){
-  const cv=document.getElementById(id); if(!cv) return;
-  const W=cv.offsetWidth||cv.parentElement?.offsetWidth||400;
-  cv.width=W; cv.height=145;
-  const ctx=cv.getContext('2d'), H=145;
-  if(type==='portinas'){
-    let g=ctx.createLinearGradient(0,0,0,H*.58); g.addColorStop(0,'#0d86c8'); g.addColorStop(1,'#4dd8e8');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H*.58);
-    ctx.fillStyle='#ffe060'; ctx.beginPath(); ctx.arc(W*.82,H*.18,18,0,Math.PI*2); ctx.fill();
-    g=ctx.createLinearGradient(0,H*.55,0,H); g.addColorStop(0,'#2ab8d8'); g.addColorStop(1,'#1a78a8');
-    ctx.fillStyle=g; ctx.fillRect(0,H*.55,W,H*.45);
-    ctx.fillStyle='#d8c870';
-    ctx.beginPath(); ctx.moveTo(0,H*.68); ctx.quadraticCurveTo(W*.2,H*.6,W*.5,H*.63); ctx.lineTo(W*.5,H); ctx.lineTo(0,H); ctx.fill();
-    ctx.fillStyle='#808070';
-    [[W*.55,H*.67,14,8],[W*.65,H*.64,10,6],[W*.73,H*.66,12,7]].forEach(([x,y,a,b])=>{ ctx.beginPath(); ctx.ellipse(x,y,a,b,.1,0,Math.PI*2); ctx.fill(); });
-    ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=1.5;
-    for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(0,H*.6+i*10); for(let x=0;x<W;x+=20) ctx.quadraticCurveTo(x+10,H*.6+i*10-3,x+20,H*.6+i*10); ctx.stroke(); }
-  } else if(type==='rosarito'){
-    let g=ctx.createLinearGradient(0,0,0,H*.5); g.addColorStop(0,'#1a4a28'); g.addColorStop(1,'#60a060');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H*.5);
-    ctx.fillStyle='#2d5a28';
-    ctx.beginPath(); ctx.moveTo(0,H*.6); ctx.quadraticCurveTo(W*.3,H*.3,W*.6,H*.5); ctx.quadraticCurveTo(W*.8,H*.38,W,H*.52); ctx.lineTo(W,0); ctx.lineTo(0,0); ctx.fill();
-    [[W*.72,H*.36],[W*.82,H*.3],[W*.9,H*.34]].forEach(([tx,ty])=>{
-      ctx.fillStyle='#1a3a18'; ctx.beginPath(); ctx.moveTo(tx,ty-24); ctx.lineTo(tx-10,ty); ctx.lineTo(tx+10,ty); ctx.fill();
-      ctx.fillStyle='#2a5028'; ctx.beginPath(); ctx.moveTo(tx,ty-16); ctx.lineTo(tx-13,ty+8); ctx.lineTo(tx+13,ty+8); ctx.fill();
-    });
-    ctx.fillStyle='#3a7038';
-    ctx.beginPath(); ctx.moveTo(0,H*.65); ctx.quadraticCurveTo(W*.15,H*.58,W*.4,H*.62); ctx.lineTo(W*.4,H); ctx.lineTo(0,H); ctx.fill();
-    g=ctx.createLinearGradient(0,H*.58,0,H); g.addColorStop(0,'#1a7888'); g.addColorStop(1,'#0d4858');
-    ctx.fillStyle=g; ctx.fillRect(0,H*.58,W,H*.42);
-    ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.lineWidth=1.5;
-    for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(W*.1+i*40,H*.72); ctx.lineTo(W*.22+i*40,H*.72); ctx.stroke(); }
-  } else {
-    let g=ctx.createLinearGradient(0,0,0,H*.55); g.addColorStop(0,'#4a2a10'); g.addColorStop(.5,'#c06830'); g.addColorStop(1,'#e09050');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H*.55);
-    let gr=ctx.createRadialGradient(W*.78,H*.12,0,W*.78,H*.12,50); gr.addColorStop(0,'rgba(255,220,100,.8)'); gr.addColorStop(1,'rgba(255,150,50,0)');
-    ctx.fillStyle=gr; ctx.fillRect(0,0,W,H*.55);
-    ctx.fillStyle='#7a5028';
-    ctx.beginPath(); ctx.moveTo(0,H*.62); ctx.quadraticCurveTo(W*.2,H*.3,W*.45,H*.5); ctx.quadraticCurveTo(W*.7,H*.28,W,H*.5); ctx.lineTo(W,0); ctx.lineTo(0,0); ctx.fill();
-    ctx.fillStyle='#6a7838';
-    ctx.beginPath(); ctx.moveTo(0,H*.68); ctx.quadraticCurveTo(W*.35,H*.44,W*.6,H*.58); ctx.quadraticCurveTo(W*.8,H*.46,W,H*.62); ctx.lineTo(W,0); ctx.lineTo(0,0); ctx.fill();
-    g=ctx.createLinearGradient(0,H*.62,0,H); g.addColorStop(0,'#1a6888'); g.addColorStop(1,'#0d3848');
-    ctx.fillStyle=g; ctx.fillRect(0,H*.62,W,H*.38);
-    ctx.fillStyle='rgba(240,160,50,.25)'; ctx.beginPath(); ctx.ellipse(W*.75,H*.75,38,7,0,0,Math.PI*2); ctx.fill();
-  }
-}
-
-// ── FISHING GAME ──────────────────────────────────────────────────────────────
-let fState='idle', castPow=0, castIv=null, biteTO=null, biteWin=null, reelIv=null, animF=null;
-let floatX=0, floatY=0, bobTime=0, ft=0, reelProg=0, lineWave=0;
-let jumpFish=[];
-let FC, FCX;
-
-function initFC(){
-  FC=document.getElementById('fishing-canvas');
-  const app=document.getElementById('app');
-  const W=app.offsetWidth||430, H=(app.offsetHeight||900)*.64;
-  FC.width=W; FC.height=H; FC.style.height=H+'px';
-  FCX=FC.getContext('2d');
-  floatX=W*.65; floatY=H*.64;
-}
-
-function drawFScene(){
-  if(!FCX||!FC) return;
-  const W=FC.width, H=FC.height;
-  const loc=LOCS[curLoc];
-  ft+=.016; lineWave=Math.sin(ft*.5)*2;
-  FCX.clearRect(0,0,W,H);
-  // Sky
-  const sg=FCX.createLinearGradient(0,0,0,H*.55);
-  const sk=loc.sky;
-  sg.addColorStop(0,sk[0]); sg.addColorStop(.3,sk[1]||sk[0]); sg.addColorStop(.65,sk[2]||sk[1]); sg.addColorStop(.85,sk[3]||sk[2]); sg.addColorStop(1,sk[4]||sk[3]);
-  FCX.fillStyle=sg; FCX.fillRect(0,0,W,H*.57);
-  // Clouds
-  [[W*.15,H*.1,50],[W*.52,H*.07,68],[W*.78,H*.16,42]].forEach(([x,y,s])=>drawCloud(x,y,s));
-  // Terrain
-  if(curLoc==='portinas'){
-    FCX.fillStyle='rgba(100,160,200,.4)';
-    FCX.beginPath(); FCX.moveTo(0,H*.5); FCX.quadraticCurveTo(W*.3,H*.32,W*.6,H*.44); FCX.quadraticCurveTo(W*.8,H*.3,W,H*.47); FCX.lineTo(W,H*.57); FCX.lineTo(0,H*.57); FCX.fill();
-    FCX.fillStyle='#d8c870';
-    FCX.beginPath(); FCX.moveTo(0,H*.64); FCX.quadraticCurveTo(W*.12,H*.58,W*.46,H*.61); FCX.lineTo(W*.46,H); FCX.lineTo(0,H); FCX.fill();
-    FCX.fillStyle='#80807a';
-    [[W*.3,H*.64,16,9],[W*.36,H*.62,11,7],[W*.41,H*.65,13,8]].forEach(([x,y,a,b])=>{ FCX.beginPath(); FCX.ellipse(x,y,a,b,.1,0,Math.PI*2); FCX.fill(); });
-  } else {
-    const hc=curLoc==='cijara'?'#7a5028':'#3a7038';
-    FCX.fillStyle=hc;
-    FCX.beginPath(); FCX.moveTo(0,H*.57); FCX.quadraticCurveTo(W*.3,H*.28,W*.6,H*.47); FCX.quadraticCurveTo(W*.8,H*.32,W,H*.52); FCX.lineTo(W,0); FCX.lineTo(0,0); FCX.fill();
-    FCX.fillStyle=curLoc==='cijara'?'#6a7838':'#2d5a28';
-    FCX.beginPath(); FCX.moveTo(0,H*.62); FCX.quadraticCurveTo(W*.25,H*.38,W*.5,H*.52); FCX.quadraticCurveTo(W*.75,H*.4,W,H*.57); FCX.lineTo(W,0); FCX.lineTo(0,0); FCX.fill();
-    if(curLoc==='rosarito'){
-      [[W*.73,H*.38],[W*.83,H*.32],[W*.9,H*.36]].forEach(([tx,ty])=>{
-        FCX.fillStyle='#1a3a18'; FCX.beginPath(); FCX.moveTo(tx,ty-26); FCX.lineTo(tx-11,ty); FCX.lineTo(tx+11,ty); FCX.fill();
-        FCX.fillStyle='#2a5028'; FCX.beginPath(); FCX.moveTo(tx,ty-17); FCX.lineTo(tx-14,ty+9); FCX.lineTo(tx+14,ty+9); FCX.fill();
-      });
-    }
-    FCX.fillStyle=curLoc==='cijara'?'#8a6038':'#5a8040';
-    FCX.beginPath(); FCX.moveTo(0,H*.64); FCX.quadraticCurveTo(W*.16,H*.59,W*.38,H*.62); FCX.lineTo(W*.38,H); FCX.lineTo(0,H); FCX.fill();
-  }
-  // Water
-  const wY=H*.58, wg=FCX.createLinearGradient(0,wY,0,H), wc=loc.water;
-  wg.addColorStop(0,wc[0]); wg.addColorStop(.5,wc[1]||wc[0]); wg.addColorStop(1,wc[2]||wc[1]);
-  FCX.fillStyle=wg; FCX.fillRect(0,wY,W,H-wY);
-  FCX.strokeStyle='rgba(255,255,255,.22)'; FCX.lineWidth=2;
-  for(let i=0;i<6;i++){
-    const wy=wY+14+i*14+Math.sin(ft*1.2+i)*3;
-    FCX.beginPath(); FCX.moveTo(0,wy);
-    for(let x=0;x<=W;x+=30) FCX.quadraticCurveTo(x+15,wy-3+Math.sin(ft+x*.05)*3,x+30,wy);
-    FCX.stroke();
-  }
-  FCX.fillStyle='rgba(255,255,255,.35)';
-  for(let i=0;i<7;i++){
-    const sx=(W*.4+i*38+Math.sin(ft*.7+i)*14)%W, sy=wY+22+Math.sin(ft*1.5+i*.7)*9;
-    FCX.fillRect(sx,sy,3,1); FCX.fillRect(sx+1,sy-1,1,3);
-  }
-  // Fisherman
-  const fmX=W*.22, fmY=curLoc==='portinas'?H*.63:H*.65;
-  drawFisherman(fmX,fmY);
-  // Line + float
-  if(fState!=='idle'){
-    const rtX=fmX+18, rtY=fmY-60;
-    FCX.strokeStyle='rgba(220,220,180,.8)'; FCX.lineWidth=1.5;
-    FCX.beginPath(); FCX.moveTo(rtX,rtY);
-    FCX.quadraticCurveTo((rtX+floatX)/2+lineWave*5,(rtY+floatY)/2-18,floatX,floatY);
-    FCX.stroke();
-    let bY=floatY;
-    if(fState==='waiting'){ bobTime+=.016; bY+=Math.sin(bobTime*2)*3; }
-    if(fState==='bite'){ bobTime+=.016; bY+=Math.abs(Math.sin(bobTime*8))*-14; }
-    FCX.fillStyle='#f0f0f0'; FCX.beginPath(); FCX.ellipse(floatX,bY-5,4,8,0,0,Math.PI*2); FCX.fill();
-    FCX.fillStyle='#e53935'; FCX.beginPath(); FCX.ellipse(floatX,bY-5,4,4,0,0,Math.PI); FCX.fill();
-    FCX.strokeStyle='rgba(255,255,255,.4)'; FCX.lineWidth=1;
-    FCX.beginPath(); FCX.ellipse(floatX,bY+3,8,3,0,0,Math.PI*2); FCX.stroke();
-    if(fState==='bite'){
-      const r=8+(ft%0.5)*44;
-      FCX.strokeStyle=`rgba(255,255,255,${Math.max(0,.6-r/55)})`; FCX.lineWidth=2;
-      FCX.beginPath(); FCX.ellipse(floatX,bY+3,r,r*.35,0,0,Math.PI*2); FCX.stroke();
-    }
-  }
-  // Background jump fish
-  if(Math.random()<.002) jumpFish.push({x:W*.45+Math.random()*W*.5,y:wY,t:0,dur:.8});
-  jumpFish=jumpFish.filter(f=>f.t<f.dur);
-  jumpFish.forEach(f=>{
-    f.t+=.016;
-    const p=f.t/f.dur, arc=-Math.sin(p*Math.PI)*28, x=f.x+p*18, y=f.y+arc;
-    FCX.save(); FCX.translate(x,y); FCX.rotate(-Math.PI*p);
-    FCX.fillStyle='rgba(180,220,200,.65)'; FCX.beginPath(); FCX.ellipse(0,0,10,5,0,0,Math.PI*2); FCX.fill();
-    FCX.restore();
-  });
-  animF=requestAnimationFrame(drawFScene);
-}
-
-function drawCloud(x,y,s){
-  FCX.fillStyle='rgba(255,255,255,.88)';
-  FCX.beginPath();
-  FCX.arc(x,y,s*.38,0,Math.PI*2); FCX.arc(x+s*.33,y-s*.05,s*.28,0,Math.PI*2);
-  FCX.arc(x-s*.28,y+s*.05,s*.24,0,Math.PI*2); FCX.arc(x+s*.58,y+s*.04,s*.2,0,Math.PI*2);
-  FCX.fill();
-}
-
-function drawFisherman(x,y){
-  FCX.fillStyle='rgba(0,0,0,.18)'; FCX.beginPath(); FCX.ellipse(x,y+2,20,5,0,0,Math.PI*2); FCX.fill();
-  FCX.fillStyle='#4a5068'; FCX.fillRect(x-8,y-20,6,22); FCX.fillRect(x+2,y-20,6,22);
-  FCX.fillStyle='#e65100'; FCX.fillRect(x-11,y-42,22,24);
-  FCX.fillStyle='rgba(0,0,0,.2)'; FCX.fillRect(x-2,y-42,4,24);
-  FCX.fillStyle='#f0c8a0'; FCX.beginPath(); FCX.arc(x,y-52,12,0,Math.PI*2); FCX.fill();
-  FCX.fillStyle='#8b6914'; FCX.beginPath(); FCX.ellipse(x,y-62,16,5,0,0,Math.PI*2); FCX.fill();
-  FCX.fillRect(x-8,y-73,16,12);
-  FCX.strokeStyle='#8b6914'; FCX.lineWidth=3; FCX.lineCap='round';
-  FCX.beginPath(); FCX.moveTo(x+8,y-40); FCX.lineTo(x+20,y-66); FCX.stroke();
-  FCX.strokeStyle='#c8a030'; FCX.lineWidth=1.5;
-  FCX.beginPath(); FCX.moveTo(x+20,y-66); FCX.lineTo(x+22,y-70); FCX.stroke();
-}
-
-// ── FISHING MECHANICS ─────────────────────────────────────────────────────────
-function selectLocation(loc){
-  curLoc=loc; sessionCatches=0;
-  document.getElementById('score-badge').textContent='🐟 0';
-  document.getElementById('loc-name').textContent=LOCS[loc].emoji+' '+LOCS[loc].name;
-  goTo('fishing');
-  setTimeout(()=>{ initFC(); setupCastBtn(); fState='idle'; animF=requestAnimationFrame(drawFScene); setStatus('Mantén pulsado para lanzar'); },400);
-}
-
-function stopFishing(){
-  cancelAnimationFrame(animF); clearTimeout(biteTO); clearTimeout(biteWin); clearInterval(castIv); clearInterval(reelIv);
-  fState='idle';
-  document.getElementById('reel-zone').classList.remove('on');
-  document.getElementById('bite-ind').style.display='none';
-  goTo('location');
-}
-
-function setStatus(m){ document.getElementById('fish-status').textContent=m; }
-
-let castHeld=false;
-let docUpHandler=null;
-
-function setupCastBtn(){
-  const btn=document.getElementById('cast-btn');
-  const nb=btn.cloneNode(true); btn.parentNode.replaceChild(nb,btn);
-  if(docUpHandler) document.removeEventListener('mouseup',docUpHandler); document.removeEventListener('touchend',docUpHandler);
-
-  const start=(e)=>{
-    e.preventDefault(); if(fState!=='idle') return;
-    castHeld=true; castPow=0; fState='casting';
-    document.getElementById('power-wrap').style.display='block';
-    castIv=setInterval(()=>{
-      if(!castHeld) return;
-      castPow=Math.min(100,castPow+3);
-      const pf=document.getElementById('power-fill');
-      pf.style.width=castPow+'%';
-      pf.style.background=castPow<50?`hsl(${120-castPow*.8},75%,42%)`:`hsl(${80-(castPow-50)*1.6},75%,42%)`;
-      if(castPow>=100) release();
-    },30);
-  };
-  const release=()=>{
-    if(!castHeld&&fState!=='casting') return;
-    castHeld=false; clearInterval(castIv);
-    if(fState!=='casting') return;
-    fState='waiting';
-    document.getElementById('power-wrap').style.display='none';
-    const W=FC.width,H=FC.height,p=castPow/100;
-    floatX=W*(.45+p*.35); floatY=H*(.63+Math.random()*.08); bobTime=0;
-    setStatus('🎣 Esperando a que pique...');
-    nb.innerHTML='<span style="font-size:16px">🎣</span><span style="font-size:10px">Pescando...</span>';
-    nb.style.opacity='.5'; nb.style.pointerEvents='none';
-    biteTO=setTimeout(startBite, 3000+Math.random()*8000);
-  };
-
-  nb.addEventListener('mousedown',start); nb.addEventListener('touchstart',start,{passive:false});
-  docUpHandler=release;
-  document.addEventListener('mouseup',docUpHandler); document.addEventListener('touchend',docUpHandler);
-}
-
-function startBite(){
-  if(fState!=='waiting') return;
-  fState='bite'; bobTime=0;
-  document.getElementById('bite-ind').style.display='block';
-  setStatus('');
-  playSound('bite');
-  biteWin=setTimeout(()=>{ if(fState==='bite') fishEscaped(); },1800);
-}
-
-function onBite(){
-  if(fState!=='bite') return;
-  clearTimeout(biteWin); fState='reeling';
-  document.getElementById('bite-ind').style.display='none';
-  const rz=document.getElementById('reel-zone'), rb=document.getElementById('reel-bar');
-  rz.classList.add('on'); reelProg=0; rb.style.width='0%';
-  reelIv=setInterval(()=>{ reelProg=Math.max(0,reelProg-.9); rb.style.width=reelProg+'%'; },100);
-  const btn=document.getElementById('reel-btn'), nb=btn.cloneNode(true); btn.parentNode.replaceChild(nb,btn);
-  const doReel=()=>{
-    if(fState!=='reeling') return;
-    reelProg=Math.min(100,reelProg+13+Math.random()*8);
-    rb.style.width=reelProg+'%'; playSound('reel');
-    if(reelProg>=100){ clearInterval(reelIv); fishCaught(); }
-  };
-  nb.addEventListener('click',doReel);
-  nb.addEventListener('touchstart',(e)=>{ e.preventDefault(); doReel(); },{passive:false});
-  biteWin=setTimeout(()=>{ if(fState==='reeling') fishEscaped(); },10000);
-}
-
-function pickFish(){
-  const loc=LOCS[curLoc], total=loc.w.reduce((a,b)=>a+b,0);
-  let r=Math.random()*total;
-  for(let i=0;i<loc.fish.length;i++){ r-=loc.w[i]; if(r<=0) return loc.fish[i]; }
-  return loc.fish[0];
-}
-
-function fishCaught(){
-  fState='idle'; clearTimeout(biteWin); clearInterval(reelIv);
-  document.getElementById('reel-zone').classList.remove('on');
-  const id=pickFish(), fish=FISH[id];
-  const w=+(fish.minW+Math.random()*(fish.maxW-fish.minW)).toFixed(2);
-  const isNew=!col[id];
-  addCatch(id,w); sessionCatches++;
-  document.getElementById('score-badge').textContent='🐟 '+sessionCatches;
-  playSound('catch');
-  cancelAnimationFrame(animF);
-  showCatch(id,fish,w,isNew);
-  resetCastBtn();
-}
-
-function fishEscaped(){
-  fState='idle'; clearTimeout(biteTO); clearTimeout(biteWin); clearInterval(reelIv);
-  document.getElementById('bite-ind').style.display='none';
-  document.getElementById('reel-zone').classList.remove('on');
-  playSound('escape'); cancelAnimationFrame(animF);
-  showEscape(); resetCastBtn();
-}
-
-function resetCastBtn(){
-  const btn=document.getElementById('cast-btn');
-  if(!btn) return;
-  btn.style.opacity='1'; btn.style.pointerEvents='auto';
-  btn.innerHTML='<span class="cast-icon">🎣</span><span>LANZAR</span>';
-  document.getElementById('power-wrap').style.display='none';
-}
-
-// ── CATCH / ESCAPE SCREENS ────────────────────────────────────────────────────
-function showCatch(id,fish,w,isNew){
-  const rl={common:'Común',uncommon:'Poco común',rare:'Raro'};
-  document.getElementById('catch-wrap').innerHTML=`
-    <div class="catch-title su">🎉 ${isNew?'¡Nueva especie! <span class="new-badge">¡NUEVO!</span>':'¡Buen pez!'}</div>
-    <div class="catch-card su">
-      <div style="display:flex;justify-content:center"><canvas id="cc" width="200" height="120"></canvas></div>
-      <div class="catch-fish-name">${fish.name}</div>
-      <div class="catch-fish-sci">${fish.sci}</div>
-      <span class="rbadge r-${fish.rarity}">${rl[fish.rarity]}</span>
-      <div class="catch-fish-desc">${fish.desc}</div>
-      <div class="catch-stats">
-        <div class="catch-stat"><div class="cstat-v">${w}kg</div><div class="cstat-l">Peso</div></div>
-        <div class="catch-stat"><div class="cstat-v">+${fish.pts}</div><div class="cstat-l">Puntos</div></div>
-        <div class="catch-stat"><div class="cstat-v">${col[id]?.count||1}</div><div class="cstat-l">Capturas</div></div>
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn-primary" onclick="continueFishing()">🎣 Seguir</button>
-      <button class="btn-secondary" onclick="goTo('collection')">📖 Colección</button>
-    </div>`;
-  goTo('catch');
-  setTimeout(()=>{ const cv=document.getElementById('cc'); if(cv) drawFishFull(cv,fish); },80);
-}
-
-function showEscape(){
-  const msgs=['Casi lo tienes, ¡la próxima!','Este era un buen pez...','¡Se ha ido! Prueba de nuevo.','El embalse guarda sus secretos.'];
-  document.getElementById('catch-wrap').innerHTML=`
-    <div class="catch-title su" style="color:#ef5350">¡Se ha Escapado!</div>
-    <div class="catch-card su" style="text-align:center">
-      <div class="escape-emoji">🐟💨</div>
-      <div class="escape-title">¡Se fue!</div>
-      <div class="escape-text">${msgs[Math.floor(Math.random()*msgs.length)]}</div>
-    </div>
-    <button class="btn-primary" onclick="continueFishing()">🎣 Intentar de nuevo</button>`;
-  goTo('catch');
-}
-
-function continueFishing(){
-  goTo('fishing');
-  setTimeout(()=>{ initFC(); setupCastBtn(); fState='idle'; setStatus('Mantén pulsado para lanzar'); animF=requestAnimationFrame(drawFScene); },400);
-}
-
-// ── FISH DRAWING ──────────────────────────────────────────────────────────────
-function drawFishFull(cv,fish){
-  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#daf0f8'); bg.addColorStop(1,'#b8dcea');
-  ctx.fillStyle=bg; roundRect(ctx,0,0,W,H,8); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.5)';
-  for(let i=0;i<8;i++){ ctx.beginPath(); ctx.arc(16+i*22,16+Math.sin(i)*8,2+i%3,0,Math.PI*2); ctx.fill(); }
-  ctx.save(); ctx.translate(W/2,H/2+5); drawFishShape(ctx,fish); ctx.restore();
-}
-
-function drawFishMini(cv,fish){
-  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#e8f4fc'); bg.addColorStop(1,'#c8e4f0');
-  ctx.fillStyle=bg; roundRect(ctx,0,0,W,H,8); ctx.fill();
-  ctx.save(); ctx.translate(W/2,H/2+4); ctx.scale(.54,.54); drawFishShape(ctx,fish); ctx.restore();
-}
-
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-}
-
-function drawFishShape(ctx,fish){
-  const sh=fish.shape||'round', c1=fish.c1, c2=fish.c2, cf=fish.cf;
-  const dims={sea:[58,22],slim:[55,16],big:[60,28],round:[48,24],bass:[52,24],pike:[65,16]};
-  const [bW,bH]=dims[sh]||[50,22];
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,.13)'; ctx.beginPath(); ctx.ellipse(2,7,bW*.78,bH*.4,0,0,Math.PI*2); ctx.fill();
-  // Tail
-  ctx.fillStyle=cf; ctx.beginPath();
-  if(sh==='pike'){ ctx.moveTo(-bW+5,0); ctx.lineTo(-bW-20,-bH); ctx.lineTo(-bW-5,0); ctx.lineTo(-bW-20,bH); }
-  else { ctx.moveTo(-bW+5,0); ctx.lineTo(-bW-18,-bH*.9); ctx.lineTo(-bW+2,0); ctx.lineTo(-bW-18,bH*.9); }
-  ctx.closePath(); ctx.fill();
-  // Body
-  const g=ctx.createLinearGradient(0,-bH,0,bH); g.addColorStop(0,c1); g.addColorStop(.4,c1); g.addColorStop(1,c2);
-  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,0,bW,bH,0,0,Math.PI*2); ctx.fill();
-  // Belly highlight
-  ctx.fillStyle='rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(5,bH*.3,bW*.68,bH*.5,0,0,Math.PI*2); ctx.fill();
-  // Dorsal fin
-  ctx.fillStyle=cf; ctx.beginPath();
-  if(sh==='bass'||sh==='sea'){ ctx.moveTo(-bW*.3,-bH+2); ctx.quadraticCurveTo(0,-bH*1.8,bW*.2,-bH+2); }
-  else { ctx.moveTo(-bW*.2,-bH+2); ctx.quadraticCurveTo(bW*.1,-bH*1.5,bW*.25,-bH+2); }
-  ctx.closePath(); ctx.fill();
-  // Pectoral fin
-  ctx.fillStyle=cf; ctx.beginPath();
-  ctx.moveTo(bW*.15,0); ctx.quadraticCurveTo(bW*.05,bH*.9,bW*.4,bH*.6); ctx.quadraticCurveTo(bW*.35,bH*.2,bW*.15,0); ctx.fill();
-  // Scales
-  if(sh!=='slim'&&sh!=='pike'){
-    ctx.strokeStyle='rgba(0,0,0,.08)'; ctx.lineWidth=1;
-    for(let r=-1;r<=1;r++) for(let c=-2;c<=1;c++){ ctx.beginPath(); ctx.arc(c*14+4,r*9,8,Math.PI*.6,Math.PI*1.4); ctx.stroke(); }
-  }
-  // Lateral line
-  if(sh==='slim'||sh==='pike'){
-    ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.moveTo(-bW*.8,-3); ctx.quadraticCurveTo(0,-5,bW*.7,-3); ctx.stroke();
-  }
-  // Sargo stripes
-  if(fish.name==='Sargo'){
-    ctx.strokeStyle='rgba(50,50,80,.28)'; ctx.lineWidth=3;
-    for(let i=0;i<5;i++){ const x=-bW*.5+i*bW*.2; ctx.beginPath(); ctx.moveTo(x,-bH*.7); ctx.lineTo(x,bH*.7); ctx.stroke(); }
-  }
-  // Dorada gold spot
-  if(fish.name==='Dorada'){ ctx.fillStyle='#ffd700'; ctx.beginPath(); ctx.ellipse(bW*.62,-bH*.2,6,4,.5,0,Math.PI*2); ctx.fill(); }
-  // Barbo barbels
-  if(fish.name==='Barbo'||fish.name==='Salmonete'){
-    ctx.strokeStyle='#888'; ctx.lineWidth=1.5; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(bW-5,4); ctx.lineTo(bW+6,9); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(bW-5,7); ctx.lineTo(bW+9,11); ctx.stroke();
-  }
-  // Eye
-  ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(bW*.68,-bH*.2,5,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(bW*.7,-bH*.25,2,0,Math.PI*2); ctx.fill();
-  // Mouth
-  ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.lineWidth=1.5; ctx.lineCap='round';
-  ctx.beginPath();
-  if(sh==='pike'){ ctx.moveTo(bW-5,-4); ctx.lineTo(bW+10,0); ctx.lineTo(bW-5,4); }
-  else { ctx.moveTo(bW-4,3); ctx.quadraticCurveTo(bW+5,0,bW-4,-3); }
-  ctx.stroke();
-}
-
-// ── COLLECTION ────────────────────────────────────────────────────────────────
-function renderCollection(){
-  let sp=0, tot=0, kg=0;
-  for(const [,d] of Object.entries(col)){ sp++; tot+=d.count; kg+=d.total; }
-  document.getElementById('st-sp').textContent=sp+'/'+Object.keys(FISH).length;
-  document.getElementById('st-tot').textContent=tot;
-  document.getElementById('st-kg').textContent=kg.toFixed(1)+'kg';
-  const grid=document.getElementById('col-grid'); grid.innerHTML='';
-  for(const [id,fish] of Object.entries(FISH)){
-    const caught=col[id];
-    const div=document.createElement('div'); div.className='col-item'+(caught?'':' locked');
-    if(caught){
-      const cid='cc-'+id;
-      div.innerHTML=`<div class="col-img"><canvas id="${cid}" width="120" height="70"></canvas></div>
-        <div class="col-info"><div class="col-name">${fish.name}</div>
-        <div class="col-detail">Mejor: ${caught.best.toFixed(2)}kg</div>
-        <div class="col-caught">✓ ${caught.count} captura${caught.count>1?'s':''}</div></div>`;
-    } else {
-      const locNames=fish.locs.map(l=>LOCS[l]?.name).join(', ');
-      div.innerHTML=`<div class="col-img"><span style="font-size:28px;opacity:.25">🐟</span></div>
-        <div class="col-info"><div class="col-name">???</div><div class="col-detail">${locNames}</div></div>`;
-    }
-    grid.appendChild(div);
-    if(caught) setTimeout(()=>{ const cv=document.getElementById('cc-'+id); if(cv) drawFishMini(cv,fish); },50);
-  }
-}
-
-// ── AUDIO ─────────────────────────────────────────────────────────────────────
-let aCtx=null;
-function getACtx(){ if(!aCtx) aCtx=new(window.AudioContext||window.webkitAudioContext)(); return aCtx; }
-function playSound(t){
-  try{
-    const ctx=getACtx();
-    if(t==='bite'){
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.setValueAtTime(800,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(400,ctx.currentTime+.15);
-      g.gain.setValueAtTime(.3,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.3);
-      o.start(); o.stop(ctx.currentTime+.3);
-    } else if(t==='catch'){
-      [523,659,784,1047].forEach((f,i)=>{
-        const o=ctx.createOscillator(), g=ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.type='triangle'; o.frequency.value=f;
-        g.gain.setValueAtTime(0,ctx.currentTime+i*.12); g.gain.linearRampToValueAtTime(.22,ctx.currentTime+i*.12+.05);
-        g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.12+.35);
-        o.start(ctx.currentTime+i*.12); o.stop(ctx.currentTime+i*.12+.4);
-      });
-    } else if(t==='escape'){
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.setValueAtTime(400,ctx.currentTime); o.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.4);
-      g.gain.setValueAtTime(.2,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.5);
-      o.start(); o.stop(ctx.currentTime+.5);
-    } else if(t==='reel'){
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination); o.type='square'; o.frequency.value=1200;
-      g.gain.setValueAtTime(.07,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.05);
-      o.start(); o.stop(ctx.currentTime+.05);
-    }
-  }catch(e){}
-}
-
-// ── STARS + INIT ──────────────────────────────────────────────────────────────
-window.addEventListener('load',()=>{
-  const sc=document.getElementById('stars');
-  for(let i=0;i<40;i++){
-    const s=document.createElement('div'); s.className='star';
-    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%';
-    s.style.animationDelay=Math.random()*2+'s';
-    const sz=1+Math.random()*3+'px'; s.style.width=sz; s.style.height=sz;
-    sc.appendChild(s);
-  }
-  const paintScenes=()=>{
-    drawScene('sc-portinas','portinas'); drawScene('sc-rosarito','rosarito'); drawScene('sc-cijara','cijara');
-  };
-  setTimeout(paintScenes,100);
-  const obs=new MutationObserver(()=>{ if(document.getElementById('screen-location').classList.contains('active')) setTimeout(paintScenes,80); });
-  obs.observe(document.getElementById('screen-location'),{attributes:true});
-  window.addEventListener('resize',()=>{ paintScenes(); if(curScreen==='fishing'&&FC) initFC(); });
-  document.addEventListener('contextmenu',e=>e.preventDefault());
-});
-</script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
