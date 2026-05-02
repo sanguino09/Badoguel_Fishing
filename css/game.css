@@ -1,0 +1,192 @@
+/* ============================================================
+   GAME STYLES – La Portiña
+   ============================================================ */
+
+/* ---- Game screen layout ---- */
+#screen-game { background: #060e1e; }
+#game-canvas  { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ---- HUD top row ---- */
+.hud-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  pointer-events: none; z-index: 10;
+}
+.hud-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(6,14,30,0.75); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 13px; font-family: 'Roboto Condensed', sans-serif;
+}
+.hud-score { color: #7ddc7d; font-weight: 700; }
+
+/* ---- Status text ---- */
+.hud-status {
+  position: absolute;
+  bottom: 110px; left: 50%; transform: translateX(-50%);
+  background: rgba(6,14,30,0.8); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; padding: 8px 20px;
+  pointer-events: none; z-index: 10;
+  white-space: nowrap;
+}
+#status-text { font-size: 14px; color: #c8dff5; font-family: 'Roboto Condensed', sans-serif; }
+
+/* ---- Bite alert ---- */
+.bite-alert {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 20; pointer-events: none;
+  display: none;
+}
+.bite-alert.show { display: block; animation: biteShake 0.6s ease-in-out infinite; }
+.bite-inner {
+  background: linear-gradient(135deg, #e84040, #b80000);
+  border: 2px solid #ff6060; border-radius: var(--r-lg);
+  padding: 16px 28px; text-align: center;
+  box-shadow: 0 0 30px rgba(232,64,64,0.7);
+}
+.bite-fish { font-size: 32px; display: block; animation: pulse 0.5s ease-in-out infinite; }
+.bite-word {
+  display: block; font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px; letter-spacing: 4px; color: #fff;
+}
+.bite-tap { display: block; font-size: 14px; color: rgba(255,255,255,0.8); letter-spacing: 2px; }
+
+/* ---- Cast power overlay ---- */
+.cast-overlay {
+  position: absolute; bottom: 105px; left: 50%; transform: translateX(-50%);
+  background: rgba(6,14,30,0.88); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--r-lg); padding: 12px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-width: 220px; z-index: 15; pointer-events: none;
+  display: none;
+}
+.cast-overlay.show { display: flex; }
+.cast-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.power-track {
+  width: 100%; height: 14px;
+  background: rgba(255,255,255,0.1); border-radius: 10px; overflow: visible;
+  position: relative;
+}
+.power-fill {
+  height: 100%; width: 0%; border-radius: 10px;
+  background: linear-gradient(90deg, #2eb872, #f0a500, #e84040);
+  transition: width 0.05s linear;
+}
+.power-sweet {
+  position: absolute; top: -3px; bottom: -3px;
+  left: 70%; width: 10%; border-radius: 6px;
+  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4);
+  pointer-events: none;
+}
+.power-pct { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); }
+
+/* ---- Reel minigame overlay ---- */
+.reel-overlay {
+  position: absolute;
+  bottom: 105px; left: 50%; transform: translateX(-50%);
+  background: rgba(6,14,30,0.92); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--r-lg); padding: 14px 20px;
+  min-width: 250px; z-index: 15; pointer-events: none;
+  display: none; flex-direction: column; gap: 8px;
+}
+.reel-overlay.show { display: flex; }
+.reel-fish-row { display: flex; justify-content: space-between; align-items: baseline; }
+.reel-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  letter-spacing: 2px; color: var(--accent);
+}
+.reel-weight { font-size: 14px; color: var(--text-muted); }
+.reel-track {
+  width: 100%; height: 16px;
+  background: rgba(255,255,255,0.08); border-radius: 10px;
+  position: relative; overflow: hidden;
+}
+.reel-fill {
+  height: 100%; width: 0%; border-radius: 10px;
+  background: linear-gradient(90deg, #1a9a5e, #2eb872);
+  transition: width 0.08s linear;
+}
+.reel-resist-bar {
+  position: absolute; top: 0; right: 0; height: 100%;
+  background: rgba(232,64,64,0.6); border-radius: 0 10px 10px 0;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.reel-tension-row {
+  display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted);
+}
+.tension-track {
+  flex: 1; height: 6px;
+  background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;
+}
+.tension-fill {
+  height: 100%; width: 0%; border-radius: 10px;
+  background: linear-gradient(90deg, #f0a500, #e84040);
+  transition: width 0.1s linear;
+}
+.tension-fill.danger { animation: tensionFlash 0.4s ease-in-out infinite; }
+.reel-tip { font-size: 12px; color: #7ab4f5; text-align: center; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; }
+
+/* ---- Bottom controls ---- */
+.game-controls {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 10px 16px 20px;
+  background: linear-gradient(to top, rgba(6,14,30,0.95) 0%, transparent 100%);
+  z-index: 10;
+  gap: 16px;
+}
+.ctrl-btn {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text); border-radius: 50%;
+  width: 48px; height: 48px; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ctrl-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.2); }
+
+.cast-btn {
+  background: linear-gradient(135deg, #2eb872 0%, #1a7a4a 100%);
+  border: none; border-radius: 50px;
+  color: #fff; padding: 14px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  box-shadow: 0 4px 20px rgba(46,184,114,0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+  min-width: 120px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cast-btn:active { transform: scale(0.94); box-shadow: 0 2px 10px rgba(46,184,114,0.3); }
+.cast-btn.reel-mode {
+  background: linear-gradient(135deg, #f0a500, #b07000);
+  box-shadow: 0 4px 20px rgba(240,165,0,0.5);
+  animation: pulseGlow 0.8s ease-in-out infinite;
+}
+.cast-btn.bite-mode {
+  background: linear-gradient(135deg, #e84040, #8b0000);
+  box-shadow: 0 4px 20px rgba(232,64,64,0.6);
+  animation: biteFlash 0.5s ease-in-out infinite;
+}
+.cast-btn-icon { font-size: 24px; }
+.cast-btn-label {
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px;
+}
+
+/* ---- In-game menu (pause) ---- */
+.ingame-menu-overlay {
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 24px;
+  display: none;
+}
+.ingame-menu-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+.ingame-menu-overlay h2 {
+  font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 4px; color: var(--accent);
+}
+.ingame-menu-overlay .btn { width: 100%; max-width: 280px; padding: 14px; }
